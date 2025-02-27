@@ -1,27 +1,37 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import LoginForm from '../components/auth/LoginForm';
 import { CubeTransparentIcon } from '@heroicons/react/24/solid';
 
 function Login({ onLoginSuccess }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
   const navigate = useNavigate();
 
-  const handleLogin = async (values) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prevData => ({
+      ...prevData,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setIsLoading(true);
     setError('');
     
     try {
       // Simulated credentials check
-      if (values.email === 'admin@tracksync.com' && values.password === 'admin123') {
+      if (formData.email === 'admin@tracksync.com' && formData.password === 'admin123') {
         // Store auth state
         localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('user', JSON.stringify({ email: values.email }));
-        
-        // Update auth state and redirect
+        localStorage.setItem('user', JSON.stringify({ email: formData.email }));
         onLoginSuccess();
-        navigate('/dashboard');
+        navigate('/');
       } else {
         setError('Invalid email or password');
       }
@@ -34,23 +44,71 @@ function Login({ onLoginSuccess }) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4 text-center">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-sm p-8">
-        <div className="flex items-center space-x-2 mb-8">
-          <CubeTransparentIcon className="w-8 h-8 text-blue-500" />
-          <span className="text-xl font-bold">TrackSync</span>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <div className="flex justify-center">
+            <CubeTransparentIcon className="h-12 w-12 text-blue-500" />
+          </div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Sign in to TrackSync
+          </h2>
         </div>
         
-        <h2 className="text-2xl font-bold text-gray-900 mb-1">Welcome back</h2>
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-        <LoginForm onSubmit={handleLogin} isLoading={isLoading} />
-        
-        <p className="mt-6 text-center text-sm text-gray-500">
-          Don't have an account?{' '}
-          <Link to="/signup" className="text-blue-500 hover:text-blue-600 font-medium">
-            Sign up
-          </Link>
-        </p>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          {error && (
+            <div className="rounded-md bg-red-50 p-4">
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          )}
+          
+          <div className="rounded-md shadow-sm -space-y-px">
+            <div>
+              <label htmlFor="email" className="sr-only">Email address</label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                value={formData.email}
+                onChange={handleChange}
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="Email address"
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="sr-only">Password</label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                value={formData.password}
+                onChange={handleChange}
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="Password"
+              />
+            </div>
+          </div>
+
+          <div>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+            >
+              {isLoading ? 'Signing in...' : 'Sign in'}
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="text-sm">
+              <Link to="/signup" className="font-medium text-blue-600 hover:text-blue-500">
+                Don't have an account? Sign up
+              </Link>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
   );

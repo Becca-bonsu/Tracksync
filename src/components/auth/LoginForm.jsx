@@ -7,13 +7,23 @@ const loginSchema = Yup.object().shape({
 });
 
 function LoginForm({ onSubmit, isLoading }) {
+  const handleSubmit = async (values, { setSubmitting }) => {
+    try {
+      await onSubmit(values);
+    } catch (error) {
+      console.error('Login error:', error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <Formik
       initialValues={{ email: '', password: '' }}
       validationSchema={loginSchema}
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
     >
-      {({ errors, touched }) => (
+      {({ errors, touched, isSubmitting }) => (
         <Form className="space-y-4">
           <p className="text-sm text-gray-500 mb-2">Please enter your details</p>
           
@@ -58,10 +68,10 @@ function LoginForm({ onSubmit, isLoading }) {
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || isSubmitting}
             className="w-full py-3 px-4 bg-blue-500 text-white rounded-md font-medium hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? 'Signing in...' : 'Sign in'}
+            {isLoading || isSubmitting ? 'Signing in...' : 'Sign in'}
           </button>
 
           <button
